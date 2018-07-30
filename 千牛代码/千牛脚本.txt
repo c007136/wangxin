@@ -1,0 +1,283 @@
+Dim successFile = "/sdcard/data/success.txt"
+Dim discardFile = "/sdcard/data/discard.txt"
+Dim runAppFile = "/sdcard/data/runApp.txt"
+file.Write(successFile, "")
+file.Write(discardFile, "")
+file.Write(runAppFile, "")
+
+// 启动app
+StartApp()
+
+// 读取文案
+Dim data
+data = file.Read("/sdcard/data/data.txt")
+TracePrint data
+
+// 读取名字
+Dim nameContent
+nameContent = file.ReadLines("/sdcard/data/name.txt")
+
+For Each name In nameContent
+	TracePrint name
+	
+	// is home page?
+	Dim result = isHomeDetailButton() And isHomeTabButton()
+	If result = False Then 
+		TracePrint name
+		file.Append(runAppFile, name)
+		file.Append(runAppFile, "\n")
+		StartApp()
+	End If
+	
+	Tap 300, 100             // 点击搜索框
+    Delay 3000
+    InputText name
+    Delay 3000
+    Tap 200, 200             // 点击列表
+    Delay 1000
+    Tap 300, 1240            // 点击发消息按钮
+    Delay 1000
+    Tap 200, 1230            // 点击发送区域
+    Delay 1000
+    InputText data
+    Delay 5000
+    
+    result = isImSendButton() And isImSendButtonBackground()
+    // didnot find user
+    If result = False Then
+    	TracePrint name
+    	file.Append(discardFile, name)
+    	file.Append(discardFile, "\n")
+    	backToHome()
+    Else 
+    	Tap 650, 1225         // 点击发送按钮
+		Delay 3000
+		TracePrint name
+		file.Append(successFile, name)
+    	file.Append(successFile, "\n")
+    	backToHome()
+    End If
+    
+    Dim successNumber = file.LinesNumber(successFile)
+    Dim successText = CStr(successNumber)
+    Dim discardNumber = file.LinesNumber(discardFile)
+    Dim discardText = CStr(discardNumber)
+    Dim runAppNumber = file.LinesNumber(runAppFile)
+    Dim runAppText = CStr(runAppNumber)
+    Dim text = "发送成功数目： " & successText & "  丢弃数目： " & discardText & "  重启APP次数：" & runAppText
+    TracePrint text
+    ShowMessage(text)
+    Delay (2000)    
+
+Next
+
+KillApp ("com.taobao.qianniu")
+
+// function
+Function backToHome
+	Dim i, isEnd = True
+	For i = 0 To 7
+		KeyPress "back"
+   		Delay 1500
+   		TracePrint i
+		If isHomeDetailButton() And isHomeTabButton() Then 
+			isEnd = False
+			Exit For
+		End If
+	Next
+
+	If isEnd = True Then 
+		StartApp()
+	End If
+End Function
+
+Function StartApp
+	KillApp ("com.taobao.qianniu")
+	Delay (5000)
+	RunApp ("com.taobao.qianniu")
+	Delay (10000)
+	Tap 220, 1220        // 点击消息Tab按钮
+	Delay 2000
+End Function
+
+Function isHomeDetailButton
+	Dim detail1, detail2, detail3, detail4
+	Dim detail5, detail6, detail7, detail8
+	detail1 = GetPixelColor(586, 88, 1)
+	detail2 = GetPixelColor(599, 88, 1)
+	detail3 = GetPixelColor(593, 96, 1)
+	detail4 = GetPixelColor(581, 110, 1)
+	detail5 = GetPixelColor(603, 110, 1)
+	detail6 = GetPixelColor(610, 81, 1)
+	detail7 = GetPixelColor(610, 87, 1)
+	detail8 = GetPixelColor(610, 93, 1)
+	TracePrint detail1, detail2, detail3, detail4
+	TracePrint detail5, detail6, detail7, detail8
+	
+	// FFFFFF == 16777215
+	If detail1 <> 16777215 Then 
+		isHomeDetailButton = False
+		TracePrint "1"
+	ElseIf detail2 <> 16777215 Then
+	    isHomeDetailButton = False
+	    TracePrint "2"
+	ElseIf detail3 <> 16777215 Then
+	    isHomeDetailButton = False
+	    TracePrint "3"
+	ElseIf detail4 <> 16777215 Then
+	    isHomeDetailButton = False
+	    TracePrint "4"
+	ElseIf detail5 <> 16777215 Then
+	    isHomeDetailButton = False
+	    TracePrint "5"
+	ElseIf detail6 <> 16777215 Then
+	    isHomeDetailButton = False
+	    TracePrint "6"
+	ElseIf detail7 <> 16777215 Then
+	    isHomeDetailButton = False
+	    TracePrint "7"
+	ElseIf detail8 <> 16777215 Then
+	    isHomeDetailButton = False
+	    TracePrint "8"
+	Else 
+	    isHomeDetailButton = True
+	    TracePrint "else"
+	End If
+	
+End Function
+
+Function isHomeTabButton
+	Dim homeTab1, homeTab2, homeTab3, homeTab4
+	Dim homeTab5, homeTab6, homeTab7, homeTab8
+	homeTab1 = GetPixelColor(225, 1205, 1)
+	homeTab2 = GetPixelColor(206, 1205, 1)
+	homeTab3 = GetPixelColor(261, 1205, 1)
+	homeTab4 = GetPixelColor(220, 1195, 1)
+	homeTab5 = GetPixelColor(220, 1215, 1)
+	homeTab6 = GetPixelColor(234, 1195, 1)
+	homeTab7 = GetPixelColor(234, 1215, 1)
+	homeTab8 = GetPixelColor(216, 1220, 1)
+	TracePrint homeTab1, homeTab2, homeTab3, homeTab4
+	TracePrint homeTab5, homeTab6, homeTab7, homeTab8
+	
+	If homeTab1 <> 16448250 Then 
+		isHomeTabButton = False
+		TracePrint "1"
+	ElseIf homeTab2 <> 16448250 Then
+	    isHomeTabButton = False
+	    TracePrint "2"
+	ElseIf homeTab3 <> 16448250 Then
+	    isHomeTabButton = False
+	    TracePrint "3"
+//	ElseIf homeTab4 <> 14453040 Then
+//	    isHomeTabButton = False
+//	    TracePrint "4"
+	ElseIf homeTab5 <> 14453040 Then
+	    isHomeTabButton = False
+	    TracePrint "5"
+//	ElseIf homeTab6 <> 14453040 Then
+//	    isHomeTabButton = False
+//	    TracePrint "6"
+	ElseIf homeTab7 <> 14453040 Then
+	    isHomeTabButton = False
+	    TracePrint "7"
+	ElseIf homeTab8 <> 14453040 Then
+	    isHomeTabButton = False
+	    TracePrint "8"
+	Else 
+	    isHomeTabButton = True
+	    TracePrint "else"
+	End If
+	
+End Function
+
+Function isImSendButton
+	Dim sendColor1, sendColor2, sendColor3, sendColor4, sendColor5, sendColor6
+	Dim sendColor7, sendColor8, sendColor9, sendColor10, sendColor11, sendColor12
+	sendColor1 = GetPixelColor(632, 1220, 1)
+	sendColor2 = GetPixelColor(650, 1220, 1)
+	sendColor3 = GetPixelColor(637, 1225, 1)
+	sendColor4 = GetPixelColor(647, 1225, 1)
+	sendColor5 = GetPixelColor(631, 1233, 1)
+	sendColor6 = GetPixelColor(642, 1233, 1)
+	sendColor7 = GetPixelColor(659, 1224, 1)
+	sendColor8 = GetPixelColor(660, 1233, 1)
+	sendColor9 = GetPixelColor(664, 1219, 1)
+	sendColor10 = GetPixelColor(677, 1219, 1)
+	sendColor11 = GetPixelColor(664, 1225, 1)
+	sendColor12 = GetPixelColor(664, 1225, 1)
+	TracePrint sendColor1, sendColor2, sendColor3, sendColor4, sendColor5, sendColor6
+	TracePrint sendColor7, sendColor8, sendColor9, sendColor10, sendColor11, sendColor12
+	
+	// FFFFFF == 16777215
+	If sendColor1 <> 16777215 Then 
+		isImSendButton = False
+		TracePrint "1"
+	ElseIf sendColor2 <> 16777215 Then
+	    isImSendButton = False
+	    TracePrint "2"
+	ElseIf sendColor3 <> 16777215 Then
+	    isImSendButton = False
+	    TracePrint "3"
+	ElseIf sendColor4 <> 16777215 Then
+	    isImSendButton = False
+	    TracePrint "4"
+	ElseIf sendColor5 <> 16777215 Then
+	    isImSendButton = False
+	    TracePrint "5"
+	ElseIf sendColor6 <> 16777215 Then
+	    isImSendButton = False
+	    TracePrint "6"
+	ElseIf sendColor7 <> 16777215 Then
+	    isImSendButton = False
+	    TracePrint "7"
+	ElseIf sendColor8 <> 16777215 Then
+	    isImSendButton = False
+	    TracePrint "8"
+	ElseIf sendColor9 <> 16777215 Then
+	    isImSendButton = False
+	    TracePrint "9"
+	ElseIf sendColor10 <> 16777215 Then
+	    isImSendButton = False
+	    TracePrint "10"
+	ElseIf sendColor11 <> 16777215 Then
+	    isImSendButton = False
+	    TracePrint "11"
+	ElseIf sendColor12 <> 16777215 Then
+	    isImSendButton = False
+	    TracePrint "12"
+	Else 
+	    isImSendButton = True
+	    TracePrint "else"
+	End If
+	
+End Function
+
+Function isImSendButtonBackground
+	Dim sendColorB1, sendColorB2, sendColorB3, sendColorB4
+	sendColorB1 = GetPixelColor(620, 1210, 1)
+	sendColorB2 = GetPixelColor(620, 1248, 1)
+	sendColorB3 = GetPixelColor(690, 1210, 1)
+	sendColorB4 = GetPixelColor(690, 1248, 1)
+	TracePrint sendColorB1, sendColorB2, sendColorB3, sendColorB4
+	
+	// E4A132 == 14983474
+	// D99425 == 14259237
+	If sendColorB1 <> 14983474 Then 
+		isImSendButtonBackground = False
+		TracePrint "1"
+	ElseIf sendColorB2 <> 14259237 Then
+	    isImSendButtonBackground = False
+	    TracePrint "2"
+	ElseIf sendColorB3 <> 14983474 Then
+	    isImSendButtonBackground = False
+	    TracePrint "3"
+	ElseIf sendColorB4 <> 14259237 Then
+	    isImSendButtonBackground = False
+	    TracePrint "4"
+	Else 
+	    isImSendButtonBackground = True
+	    TracePrint "else"
+	End If
+	
+End Function

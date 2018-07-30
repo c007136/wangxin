@@ -1,0 +1,25 @@
+// 链接：http://bbs.anjian.com/showtopic-656270-1.aspx
+// MySocket.lua目录位置： /storage/emulated/0/MobileAnJian/Plugin
+
+Import "MySocket.lua"
+Import "Cjson.lua"
+
+Dim socketResult
+socketResult = MySocket.ConnectTo("192.168.20.29", 6666)
+
+If socketResult = False Then
+    ShowMessage ("网络连接失败")
+    Delay 3000
+    EndScript
+End If
+
+Dim table, json
+json = MySocket.Receive(5)
+TracePrint json
+table = Cjson.Decode(json)
+For Each k, v In table
+	TracePrint k, v
+Next
+
+TracePrint MySocket.Send("connect_end")
+MySocket.Close()
